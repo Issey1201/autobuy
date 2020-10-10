@@ -1,0 +1,5 @@
+package autobuy
+
+func run () {
+
+}
