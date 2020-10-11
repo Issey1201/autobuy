@@ -39,7 +39,7 @@ func check(t TargetSite) bool {
 		log.Fatalln(err)
 	}
 
-	stockStatus := doc.Find(info["checkPoint"]).Text()
+	stockStatus := doc.Find("."+info["checkPoint"]).Text()
 	if strings.Index(stockStatus, info["checkWord"]) != -1 {
 		// 在庫あり
 		return true
