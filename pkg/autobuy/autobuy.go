@@ -22,6 +22,11 @@ type Ark struct {
 	Tracer     trace.Tracer
 }
 
+type TargetSite interface {
+	Run(map[string]string) error
+	getCheckInfo() map[string]string
+}
+
 func NewArk() *Ark {
 	// 相対パスじゃなくて絶対パスにしたい
 	cfg, err := ini.Load("./../../config.ini")
@@ -36,7 +41,7 @@ func NewArk() *Ark {
 		inputPw: cfg.Section("ark").Key("input_xpath_password").String(),
 		login: cfg.Section("ark").Key("input_xpath_login").String(),
 		checkPoint: cfg.Section("ark").Key("selector_stock").String(),
-		checkWord: cfg.Section("ark").Key("out_of_stock_word").String(),
+		checkWord: cfg.Section("ark").Key("in_stock_word").String(),
 		Tracer : trace.New(os.Stdout),
 	}
 }
@@ -50,6 +55,8 @@ func (t *Ark) Run (user map[string]string) (err error){
 		log.Fatalf("Failed to start driver: %v", err)
 		return err
 	}
+	// ↓これどうなんでしょう？driverを閉じるdeferにif文いらない？
+	// errとdriverがnilである可能性、、、
 	if driver != nil {
 		defer driver.Stop()
 	}
@@ -89,7 +96,7 @@ func (t *Ark) Run (user map[string]string) (err error){
 	}
 	sleep()
 
-	if result := t.Check(); result == false {
+	if result := check(t); result == false {
 		return errors.New("在庫ないです")
 	}else{
 		return errors.New("在庫あります")
@@ -98,8 +105,16 @@ func (t *Ark) Run (user map[string]string) (err error){
 	return nil
 }
 
+func (t *Ark) getCheckInfo() map[string]string{
+	return map[string]string{
+		"targetUrl": t.targetUrl,
+		"checkPoint": t.checkPoint,
+		"checkWord": t.checkWord,
+	}
+}
+
 func sleep (){
-	time.Sleep(1 * time.Second)
+	time.Sleep(2 * time.Second)
 	// 以下のようにするとエラー起きる、、、
 	//time.Sleep(s * time.Second)
 }
