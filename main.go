@@ -62,7 +62,7 @@ func main() {
 			} else {
 				ark.Tracer.Trace("在庫あったぜ！")
 				ark.Run(user)
-				notify.Notificate()
+				notify.Notificator()
 				os.Exit(1)
 			}
 		default:
