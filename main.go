@@ -2,6 +2,7 @@ package main
 
 import (
 	"autobuy/pkg/autobuy"
+	"autobuy/pkg/notify"
 	"log"
 	"os"
 	"time"
@@ -61,6 +62,7 @@ func main() {
 			} else {
 				ark.Tracer.Trace("在庫あったぜ！")
 				ark.Run(user)
+				notify.Notificate()
 				os.Exit(1)
 			}
 		default:

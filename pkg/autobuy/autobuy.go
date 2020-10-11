@@ -237,7 +237,7 @@ func (t *Ark) getCheckInfo() map[string]string {
 }
 
 func sleep() {
-	time.Sleep(2 * time.Second)
+	time.Sleep(1 * time.Second)
 	// 以下のようにするとエラー起きる、、、
 	//time.Sleep(s * time.Second)
 }
