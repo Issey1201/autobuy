@@ -9,6 +9,7 @@ import (
 	"github.com/go-ini/ini"
 )
 
+// consumerという関数名で良いのか、、、
 func consumer(t autobuy.TargetSite, ch chan bool) {
 	for {
 		if result := autobuy.Check(t); result == false {
@@ -28,7 +29,7 @@ func consumer(t autobuy.TargetSite, ch chan bool) {
 // 2-a.在庫がなければ1分休憩、その後また在庫があるか確認
 // 2-b.在庫があればchannelを閉じてRunで購入スクリプト実行
 // 3-b.goroutine抜け出してスクリプト終了(通知したい)
-
+// ゆくゆくは、ark以外のサイトも対象とし、ターゲットURLを複数にしていきたい
 func main() {
 	cfg, err := ini.Load("config.ini")
 	if err != nil {

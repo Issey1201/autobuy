@@ -46,6 +46,9 @@ type TargetSite interface {
 
 func NewArk() *Ark {
 	// 相対パスじゃなくて絶対パスにしたい
+	// →main.goでもini.Load()をしていて、パスはmain.goに合わせてる感じ？
+	// main.goでは相対パスなのに大して、こちらは絶対パス（？）少なくとも相対パスではない
+	// 最初読み込んだら２回目以降の読み込みは、１回目と同じ読み込み方で良いということ？
 	cfg, err := ini.Load("./config.ini")
 	if err != nil {
 		log.Printf("failed to read file: %v", err)
@@ -80,8 +83,6 @@ func NewArk() *Ark {
 	}
 }
 
-var ChooseArk Ark
-
 func (t *Ark) Run(user map[string]string) (err error) {
 
 	// 在庫チェック→page.HTML()でやった方がいいのかな？
@@ -97,6 +98,7 @@ func (t *Ark) Run(user map[string]string) (err error) {
 	}
 	// ↓これどうなんでしょう？driverを閉じるdeferにif文いらない？
 	// errとdriverがnilである可能性、、、
+	// なぜ処理不可能なエラーとして検出されるのか？if文なくても変わらず
 	if driver != nil {
 		defer driver.Stop()
 	}
