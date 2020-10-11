@@ -31,6 +31,11 @@ type Ark struct {
 	phone        string
 	userEmail    string
 	vUserEmail   string
+	shipping     string
+	payment      string
+	nextPage1    string
+	nextPage2    string
+	nextPage3    string
 	Tracer       trace.Tracer
 }
 
@@ -66,7 +71,11 @@ func NewArk() *Ark {
 		phone: cfg.Section("ark").Key("input_xpath_phone").String(),
 		userEmail: cfg.Section("ark").Key("input_xpath_user_email").String(),
 		vUserEmail: cfg.Section("ark").Key("input_xpath_v_user_email").String(),
-		//checkout_step1/
+		shipping: cfg.Section("ark").Key("input_xpath_shipping").String(),
+		payment: cfg.Section("ark").Key("input_xpath_payment").String(),
+		nextPage1: cfg.Section("ark").Key("input_xpath_next_page1").String(),
+		nextPage2: cfg.Section("ark").Key("input_xpath_next_page2").String(),
+		nextPage3: cfg.Section("ark").Key("input_xpath_next_page3").String(),
 		Tracer : trace.New(os.Stdout),
 	}
 }
@@ -113,8 +122,7 @@ func (t *Ark) Run (user map[string]string) (err error){
 	sleep()
 
 	// カートに入れる、カート画面遷移
-	if err := page.FindByClass(t.stockBtn).Submit();
-		err != nil {
+	if err := page.FindByClass(t.stockBtn).Submit(); err != nil {
 			log.Fatalf("Failed to add to cart: %v", err)
 			return err
 	}
@@ -127,6 +135,7 @@ func (t *Ark) Run (user map[string]string) (err error){
 
 
 	// 情報をばんばん入れてく
+	// step1 宛先の入力
 	if err := page.FindByXPath(t.name).Fill(user["name"]); err != nil {
 		log.Fatalf("Failed to input: %v", err)
 		return err
@@ -172,6 +181,33 @@ func (t *Ark) Run (user map[string]string) (err error){
 		return err
 	}
 	sleep()
+	if err := page.FindByXPath(t.nextPage1).Click(); err != nil {
+		log.Fatalf("Failed to submit at shipping form page: %v", err)
+		return err
+	}
+	sleep()
+
+	//step2 支払い方法・各種指定
+	if err := page.FindByXPath(t.shipping).Click(); err != nil {
+		log.Fatalf("Failed to select shipping method: %v", err)
+		return err
+	}
+	if err := page.FindByXPath(t.payment).Click(); err != nil {
+		log.Fatalf("Failed to select payment method: %v", err)
+		return err
+	}
+	sleep()
+	if err := page.FindByXPath(t.nextPage2).Click(); err != nil {
+		log.Fatalf("Failed to submit at payment form page: %v", err)
+		return err
+	}
+	sleep()
+
+	//step3 注文確認画面→コメントアウト外しちゃうと買っちゃうはず、テストしてません。
+	//if err := page.FindByXPath(t.nextPage3).Click(); err != nil {
+	//	log.Fatalf("Failed to submit at payment form page: %v", err)
+	//	return err
+	//}
 	sleep()
 
 	// BOT判定の画像のやつがくるからうまくログインできない、できなくても買い物はできるので諦め
@@ -187,9 +223,6 @@ func (t *Ark) Run (user map[string]string) (err error){
 	//		return err
 	//}
 	//sleep()
-
-
-
 
 	return nil
 }
