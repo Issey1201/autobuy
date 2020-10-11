@@ -46,46 +46,46 @@ type TargetSite interface {
 
 func NewArk() *Ark {
 	// 相対パスじゃなくて絶対パスにしたい
-	cfg, err := ini.Load("./../../config.ini")
+	cfg, err := ini.Load("./config.ini")
 	if err != nil {
 		log.Printf("failed to read file: %v", err)
 		os.Exit(1)
 	}
 	return &Ark{
-		url: cfg.Section("ark").Key("base_url").String(),
-		targetUrl: cfg.Section("ark").Key("target_url").String(),
+		url:          cfg.Section("ark").Key("base_url").String(),
+		targetUrl:    cfg.Section("ark").Key("target_url").String(),
 		addresseeUrl: cfg.Section("ark").Key("addressee_url").String(),
-		inputMail: cfg.Section("ark").Key("input_xpath_email").String(),
-		inputPw: cfg.Section("ark").Key("input_xpath_password").String(),
-		login: cfg.Section("ark").Key("input_xpath_login").String(),
-		stockBtn: cfg.Section("ark").Key("selector_stock").String(),
-		checkWord: cfg.Section("ark").Key("in_stock_word").String(),
-		name: cfg.Section("ark").Key("input_xpath_name").String(),
-		nameKana: cfg.Section("ark").Key("input_xpath_name_kana").String(),
-		zipcode1: cfg.Section("ark").Key("input_xpath_zipcode1").String(),
-		zipcode2: cfg.Section("ark").Key("input_xpath_zipcode2").String(),
-		pref: cfg.Section("ark").Key("input_xpath_pref").String(),
-		city: cfg.Section("ark").Key("input_xpath_city").String(),
-		street: cfg.Section("ark").Key("input_xpath_street").String(),
-		building: cfg.Section("ark").Key("input_xpath_building").String(),
-		phone: cfg.Section("ark").Key("input_xpath_phone").String(),
-		userEmail: cfg.Section("ark").Key("input_xpath_user_email").String(),
-		vUserEmail: cfg.Section("ark").Key("input_xpath_v_user_email").String(),
-		shipping: cfg.Section("ark").Key("input_xpath_shipping").String(),
-		payment: cfg.Section("ark").Key("input_xpath_payment").String(),
-		nextPage1: cfg.Section("ark").Key("input_xpath_next_page1").String(),
-		nextPage2: cfg.Section("ark").Key("input_xpath_next_page2").String(),
-		nextPage3: cfg.Section("ark").Key("input_xpath_next_page3").String(),
-		Tracer : trace.New(os.Stdout),
+		inputMail:    cfg.Section("ark").Key("input_xpath_email").String(),
+		inputPw:      cfg.Section("ark").Key("input_xpath_password").String(),
+		login:        cfg.Section("ark").Key("input_xpath_login").String(),
+		stockBtn:     cfg.Section("ark").Key("selector_stock").String(),
+		checkWord:    cfg.Section("ark").Key("in_stock_word").String(),
+		name:         cfg.Section("ark").Key("input_xpath_name").String(),
+		nameKana:     cfg.Section("ark").Key("input_xpath_name_kana").String(),
+		zipcode1:     cfg.Section("ark").Key("input_xpath_zipcode1").String(),
+		zipcode2:     cfg.Section("ark").Key("input_xpath_zipcode2").String(),
+		pref:         cfg.Section("ark").Key("input_xpath_pref").String(),
+		city:         cfg.Section("ark").Key("input_xpath_city").String(),
+		street:       cfg.Section("ark").Key("input_xpath_street").String(),
+		building:     cfg.Section("ark").Key("input_xpath_building").String(),
+		phone:        cfg.Section("ark").Key("input_xpath_phone").String(),
+		userEmail:    cfg.Section("ark").Key("input_xpath_user_email").String(),
+		vUserEmail:   cfg.Section("ark").Key("input_xpath_v_user_email").String(),
+		shipping:     cfg.Section("ark").Key("input_xpath_shipping").String(),
+		payment:      cfg.Section("ark").Key("input_xpath_payment").String(),
+		nextPage1:    cfg.Section("ark").Key("input_xpath_next_page1").String(),
+		nextPage2:    cfg.Section("ark").Key("input_xpath_next_page2").String(),
+		nextPage3:    cfg.Section("ark").Key("input_xpath_next_page3").String(),
+		Tracer:       trace.New(os.Stdout),
 	}
 }
 
 var ChooseArk Ark
 
-func (t *Ark) Run (user map[string]string) (err error){
+func (t *Ark) Run(user map[string]string) (err error) {
 
 	// 在庫チェック→page.HTML()でやった方がいいのかな？
-	if result := check(t); result == false {
+	if result := Check(t); result == false {
 		return errors.New("在庫ないです")
 	}
 
@@ -123,8 +123,8 @@ func (t *Ark) Run (user map[string]string) (err error){
 
 	// カートに入れる、カート画面遷移
 	if err := page.FindByClass(t.stockBtn).Submit(); err != nil {
-			log.Fatalf("Failed to add to cart: %v", err)
-			return err
+		log.Fatalf("Failed to add to cart: %v", err)
+		return err
 	}
 	sleep()
 	if err := page.Navigate(t.addresseeUrl); err != nil {
@@ -132,7 +132,6 @@ func (t *Ark) Run (user map[string]string) (err error){
 		return err
 	}
 	sleep()
-
 
 	// 情報をばんばん入れてく
 	// step1 宛先の入力
@@ -227,15 +226,15 @@ func (t *Ark) Run (user map[string]string) (err error){
 	return nil
 }
 
-func (t *Ark) getCheckInfo() map[string]string{
+func (t *Ark) getCheckInfo() map[string]string {
 	return map[string]string{
-		"targetUrl": t.targetUrl,
+		"targetUrl":  t.targetUrl,
 		"checkPoint": t.stockBtn,
-		"checkWord": t.checkWord,
+		"checkWord":  t.checkWord,
 	}
 }
 
-func sleep (){
+func sleep() {
 	time.Sleep(2 * time.Second)
 	// 以下のようにするとエラー起きる、、、
 	//time.Sleep(s * time.Second)

@@ -12,7 +12,7 @@ import (
 // TargetSiteインターフェースを引数にして色々なサイトをポインタとして受け取りたい→interfaceをポインタで受け取るのはきつい？
 //　→(t *Ark)check()bool　を、check(t TargetSite)boolとし、
 //  tの中身はそれを取り出すメソッド(getCheckInfo)によって取得
-func check(t TargetSite) bool {
+func Check(t TargetSite) bool {
 
 	info := t.getCheckInfo()
 	// http.Getは構造体http.Responseのポインタを返してる
@@ -39,7 +39,7 @@ func check(t TargetSite) bool {
 		log.Fatalln(err)
 	}
 
-	stockStatus := doc.Find("."+info["checkPoint"]).Text()
+	stockStatus := doc.Find("." + info["checkPoint"]).Text()
 	if strings.Index(stockStatus, info["checkWord"]) != -1 {
 		// 在庫あり
 		return true
