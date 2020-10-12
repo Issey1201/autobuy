@@ -10,6 +10,7 @@
 	"github.com/sclevine/agouti"  
   	"github.com/PuerkitoBio/goquery"  
   	"github.com/bwmarrin/discordgo"  
+	"github.com/joho/godotenv"  
 
 3.chromedriverをinstall
 windowsの人は以下を参考に  
@@ -32,6 +33,12 @@ user_building = ○○ビル7Ｆ
 user_phone = 0352987020  
 \# url #target_url→欲しい商品が記載されているURL
 target_url = https://www.ark-pc.co.jp/i/11501894/  
+
+5.(任意)購入を試した場合、discordに通知を送ることができます。  
+autobuyディレクトリで以下を実行  
+```cp .env.example .env```  
+.envにDISCORD_TOKENがあると思うのでこちらにtoken入れます。  
+discord通知希望の場合、私にご一報ください。  
   
-5.autobuyのディレクトリで以下のコマンドを実行  
+6.autobuyのディレクトリで以下のコマンドを実行  
 go run main.gp  
