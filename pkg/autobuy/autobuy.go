@@ -96,12 +96,7 @@ func (t *Ark) Run(user map[string]string) (err error) {
 		log.Fatalf("Failed to start driver: %v", err)
 		return err
 	}
-	// ↓これどうなんでしょう？driverを閉じるdeferにif文いらない？
-	// errとdriverがnilである可能性、、、
-	// なぜ処理不可能なエラーとして検出されるのか？if文なくても変わらず
-	if driver != nil {
-		defer driver.Stop()
-	}
+	defer driver.Stop()
 
 	page, err := driver.NewPage()
 	if err != nil {
