@@ -4,8 +4,10 @@ go 1.15
 
 require (
 	github.com/PuerkitoBio/goquery v1.6.0
+	github.com/avast/retry-go v2.7.0+incompatible // indirect
 	github.com/bwmarrin/discordgo v0.22.0
 	github.com/go-ini/ini v1.62.0
+	github.com/go-yaml/yaml v2.1.0+incompatible // indirect
 	github.com/joho/godotenv v1.3.0
 	github.com/onsi/ginkgo v1.14.1 // indirect
 	github.com/onsi/gomega v1.10.2 // indirect
