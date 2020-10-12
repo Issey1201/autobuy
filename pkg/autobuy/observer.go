@@ -34,7 +34,7 @@ func Check(t TargetSite) bool {
 	// NewDocumentFromReader関数の引数は、io.Readerインターフェースを引数に取る
 	doc, err := goquery.NewDocumentFromReader(res.Body)
 	if err != nil {
-		log.Fatalln(err)
+		log.Fatalf("failed to read a new document: %v", err)
 	}
 
 	stockStatus := doc.Find("." + info["checkPoint"]).Text()

@@ -62,7 +62,7 @@ func main() {
 			} else {
 				ark.Tracer.Trace("在庫あったぜ！")
 				if err := ark.Run(user); err != nil {
-					log.Fatalf("Failed to run: %v", err)
+					log.Fatalln("Failed to run")
 				}
 				notify.Notificator()
 				os.Exit(1)

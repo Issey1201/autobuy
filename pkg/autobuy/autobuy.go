@@ -2,6 +2,7 @@ package autobuy
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"os"
 	"time"
@@ -93,39 +94,39 @@ func (t *Ark) Run(user map[string]string) (err error) {
 	// ブラウザ：chromeを指定して起動
 	driver := agouti.ChromeDriver(agouti.Browser("chrome"))
 	if err := driver.Start(); err != nil {
-		log.Fatalf("Failed to start driver: %v", err)
+		fmt.Printf("Failed to start driver: %v", err)
 		return err
 	}
 	defer driver.Stop()
 
 	page, err := driver.NewPage()
 	if err != nil {
-		log.Fatalf("Failed to open page: %v", err)
+		fmt.Printf("Failed to open page: %v", err)
 		return err
 	}
 
 	// cookieクリア
 	if err := page.ClearCookies(); err != nil {
-		log.Fatalf("Failed to clear cookies: %v", err)
+		fmt.Printf("Failed to clear cookies: %v", err)
 		return err
 	}
 	sleep()
 
 	// 商品ページに遷移
 	if err := page.Navigate(t.targetUrl); err != nil {
-		log.Fatalf("Failed to navigate: %v", err)
+		fmt.Printf("Failed to navigate: %v", err)
 		return err
 	}
 	sleep()
 
 	// カートに入れる、カート画面遷移
 	if err := page.FindByClass(t.stockBtn).Submit(); err != nil {
-		log.Fatalf("Failed to add to cart: %v", err)
+		fmt.Printf("Failed to add to cart: %v", err)
 		return err
 	}
 	sleep()
 	if err := page.Navigate(t.addresseeUrl); err != nil {
-		log.Fatalf("Failed to navigate: %v", err)
+		fmt.Printf("Failed to navigate: %v", err)
 		return err
 	}
 	sleep()
@@ -133,75 +134,75 @@ func (t *Ark) Run(user map[string]string) (err error) {
 	// 情報をばんばん入れてく
 	// step1 宛先の入力
 	if err := page.FindByXPath(t.name).Fill(user["name"]); err != nil {
-		log.Fatalf("Failed to input: %v", err)
+		fmt.Printf("Failed to input: %v", err)
 		return err
 	}
 	if err := page.FindByXPath(t.nameKana).Fill(user["nameKana"]); err != nil {
-		log.Fatalf("Failed to input: %v", err)
+		fmt.Printf("Failed to input: %v", err)
 		return err
 	}
 	if err := page.FindByXPath(t.zipcode1).Fill(user["zipcode1"]); err != nil {
-		log.Fatalf("Failed to input: %v", err)
+		fmt.Printf("Failed to input: %v", err)
 		return err
 	}
 	if err := page.FindByXPath(t.zipcode2).Fill(user["zipcode2"]); err != nil {
-		log.Fatalf("Failed to input: %v", err)
+		fmt.Printf("Failed to input: %v", err)
 		return err
 	}
 	if err := page.FindByXPath(t.pref).Select(user["pref"]); err != nil {
-		log.Fatalf("Failed to select pref: %v", err)
+		fmt.Printf("Failed to select pref: %v", err)
 		return err
 	}
 	if err := page.FindByXPath(t.city).Fill(user["city"]); err != nil {
-		log.Fatalf("Failed to input: %v", err)
+		fmt.Printf("Failed to input: %v", err)
 		return err
 	}
 	if err := page.FindByXPath(t.street).Fill(user["street"]); err != nil {
-		log.Fatalf("Failed to input: %v", err)
+		fmt.Printf("Failed to input: %v", err)
 		return err
 	}
 	if err := page.FindByXPath(t.building).Fill(user["building"]); err != nil {
-		log.Fatalf("Failed to input: %v", err)
+		fmt.Printf("Failed to input: %v", err)
 		return err
 	}
 	if err := page.FindByXPath(t.phone).Fill(user["phone"]); err != nil {
-		log.Fatalf("Failed to input: %v", err)
+		fmt.Printf("Failed to input: %v", err)
 		return err
 	}
 	if err := page.FindByXPath(t.userEmail).Fill(user["email"]); err != nil {
-		log.Fatalf("Failed to input: %v", err)
+		fmt.Printf("Failed to input: %v", err)
 		return err
 	}
 	if err := page.FindByXPath(t.vUserEmail).Fill(user["email"]); err != nil {
-		log.Fatalf("Failed to input: %v", err)
+		fmt.Printf("Failed to input: %v", err)
 		return err
 	}
 	sleep()
 	if err := page.FindByXPath(t.nextPage1).Click(); err != nil {
-		log.Fatalf("Failed to submit at shipping form page: %v", err)
+		fmt.Printf("Failed to submit at shipping form page: %v", err)
 		return err
 	}
 	sleep()
 
 	//step2 支払い方法・各種指定
 	if err := page.FindByXPath(t.shipping).Click(); err != nil {
-		log.Fatalf("Failed to select shipping method: %v", err)
+		fmt.Printf("Failed to select shipping method: %v", err)
 		return err
 	}
 	if err := page.FindByXPath(t.payment).Click(); err != nil {
-		log.Fatalf("Failed to select payment method: %v", err)
+		fmt.Printf("Failed to select payment method: %v", err)
 		return err
 	}
 	sleep()
 	if err := page.FindByXPath(t.nextPage2).Click(); err != nil {
-		log.Fatalf("Failed to submit at payment form page: %v", err)
+		fmt.Printf("Failed to submit at payment form page: %v", err)
 		return err
 	}
 	sleep()
 
 	//step3 注文確認画面→コメントアウト外しちゃうと買っちゃうはず、テストしてません。
 	//if err := page.FindByXPath(t.nextPage3).Click(); err != nil {
-	//	log.Fatalf("Failed to submit at payment form page: %v", err)
+	//	fmt.Printf("Failed to purchase: %v", err)
 	//	return err
 	//}
 	sleep()
@@ -215,7 +216,7 @@ func (t *Ark) Run(user map[string]string) (err error) {
 	//password.Fill(user["password"])
 	//if err := page.FindByXPath(t.login).Submit();
 	//	err != nil {
-	//		log.Fatalf("Failed to login: %v", err)
+	//		fmt.Printf("Failed to login: %v", err)
 	//		return err
 	//}
 	//sleep()
