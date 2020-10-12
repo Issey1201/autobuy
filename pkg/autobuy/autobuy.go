@@ -196,7 +196,7 @@ func (t *Ark) Run(user map[string]string) (err error) {
 	}, retry.DelayType(func(n uint, config *retry.Config) time.Duration {
 		return time.Duration(n) * time.Second
 	}), retry.Attempts(3)); err != nil {
-		fmt.Printf("Failed at input page: %v\n", err)
+		fmt.Printf("Failed at payment page: %v\n", err)
 		return err
 	}
 
