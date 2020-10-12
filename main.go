@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"time"
@@ -61,10 +62,12 @@ func main() {
 				ark.Tracer.Trace("在庫切れなう")
 			} else {
 				ark.Tracer.Trace("在庫あったぜ！")
-				if err := ark.Run(user); err != nil {
+				if err = ark.Run(user); err != nil {
 					log.Fatalln("Failed to run")
 				}
-				notify.Notificator()
+				if err = notify.Notificator(); err != nil {
+					fmt.Println("Failed to Notificator")
+				}
 				os.Exit(1)
 			}
 		default:
