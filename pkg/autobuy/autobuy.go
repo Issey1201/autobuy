@@ -1,12 +1,12 @@
 package autobuy
 
 import (
-	"autobuy/pkg/trace"
 	"errors"
 	"log"
 	"os"
 	"time"
 
+	"github.com/Issey1201/pkg/trace"
 	"github.com/go-ini/ini"
 	"github.com/sclevine/agouti"
 )

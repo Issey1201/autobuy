@@ -1,12 +1,12 @@
 package main
 
 import (
-	"autobuy/pkg/autobuy"
-	"autobuy/pkg/notify"
 	"log"
 	"os"
 	"time"
 
+	"github.com/Issey1201/pkg/autobuy"
+	"github.com/Issey1201/pkg/notify"
 	"github.com/go-ini/ini"
 )
 
