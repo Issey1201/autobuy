@@ -15,12 +15,6 @@ import (
 func Check(t TargetSite) bool {
 
 	info := t.getCheckInfo()
-	// http.Getは構造体http.Responseのポインタを返してる
-	// さらにres.Bodyは、io.ReadCloserインターフェース型である
-	// io.ReadCloserインターフェース型はio.Readerとio.Closerインターフェース型を実装している
-	//（インターフェースの中にインターフェースというのがしっくりこない、io.Readerとio.Closer両方の必須メソッドを持っているインターフェースということ？）
-	// io.Readerインターフェースは右のメソッドを保持→func (Reader) Read(p []byte) (n int, err error)
-	// io.Closerインターフェースは右のメソッドを保持→func (Closer) Close() error
 	res, err := http.Get(info["targetUrl"])
 	if err != nil {
 		panic(err)
@@ -31,7 +25,6 @@ func Check(t TargetSite) bool {
 		log.Fatalf("status code error: %d %s\n", res.StatusCode, res.Status)
 	}
 
-	// NewDocumentFromReader関数の引数は、io.Readerインターフェースを引数に取る
 	doc, err := goquery.NewDocumentFromReader(res.Body)
 	if err != nil {
 		log.Fatalf("failed to read a new document: %v", err)
