@@ -2,41 +2,40 @@ package autobuy
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"time"
 
+	"github.com/BurntSushi/toml"
 	"github.com/Issey1201/pkg/trace"
 	"github.com/avast/retry-go"
-	"github.com/go-ini/ini"
 	"github.com/sclevine/agouti"
 )
 
 type Ark struct {
-	url          string
-	targetUrl    string
-	addresseeUrl string
-	inputMail    string
-	inputPw      string
-	login        string
-	stockBtn     string
-	checkWord    string
-	name         string
-	nameKana     string
-	zipcode1     string
-	zipcode2     string
-	pref         string
-	city         string
-	street       string
-	building     string
-	phone        string
-	userEmail    string
-	vUserEmail   string
-	shipping     string
-	payment      string
-	nextPage1    string
-	nextPage2    string
-	nextPage3    string
+	Url          string `toml:"base_url"`
+	TargetUrl    string `toml:"target_url"`
+	AddresseeUrl string `toml:"addressee_url"`
+	InputMail    string `toml:"email"`
+	InputPw      string `toml:"password"`
+	Login        string `toml:"login"`
+	StockBtn     string `toml:"stock"`
+	CheckWord    string `toml:"in_stock_word"`
+	Name         string `toml:"name"`
+	NameKana     string `toml:"name_kana"`
+	Zipcode1     string `toml:"zipcode1"`
+	Zipcode2     string `toml:"zipcode2"`
+	Pref         string `toml:"pref"`
+	City         string `toml:"city"`
+	Street       string `toml:"street"`
+	Building     string `toml:"building"`
+	Phone        string `toml:"phone"`
+	UserEmail    string `toml:"user_email"`
+	VUserEmail   string `toml:"v_user_email"`
+	Shipping     string `toml:"shipping"`
+	Payment      string `toml:"payment"`
+	NextPage1    string `toml:"next_page1"`
+	NextPage2    string `toml:"next_page2"`
+	NextPage3    string `toml:"next_page3"`
 	Tracer       trace.Tracer
 }
 
@@ -45,41 +44,47 @@ type TargetSite interface {
 	getCheckInfo() map[string]string
 }
 
+type Config struct {
+	//User map[string]User
+	Ark map[string]Ark
+}
+
 func NewArk() *Ark {
 	// 相対パスじゃなくて絶対パスにしたい
 	// →main.goでもini.Load()をしていて、パスはmain.goに合わせてる感じ？
 	// main.goでは相対パスなのに大して、こちらは絶対パス（？）少なくとも相対パスではない
-	// 最初読み込んだら２回目以降の読み込みは、１回目と同じ読み込み方で良いということ？
-	cfg, err := ini.Load("./config.ini")
-	if err != nil {
-		log.Printf("failed to read file: %v", err)
-		os.Exit(1)
+	// 最初読み込んだら	var config Config２回目以降の読み込みは、１回目と同じ読み込み方で良いということ？
+	var config Config
+	if _, err := toml.DecodeFile("./config.toml", &config); err != nil {
+		fmt.Printf("Failed to open toml file: %v", err)
+		return nil
 	}
+
 	return &Ark{
-		url:          cfg.Section("ark").Key("base_url").String(),
-		targetUrl:    cfg.Section("ark").Key("target_url").String(),
-		addresseeUrl: cfg.Section("ark").Key("addressee_url").String(),
-		inputMail:    cfg.Section("ark").Key("input_xpath_email").String(),
-		inputPw:      cfg.Section("ark").Key("input_xpath_password").String(),
-		login:        cfg.Section("ark").Key("input_xpath_login").String(),
-		stockBtn:     cfg.Section("ark").Key("selector_stock").String(),
-		checkWord:    cfg.Section("ark").Key("in_stock_word").String(),
-		name:         cfg.Section("ark").Key("input_xpath_name").String(),
-		nameKana:     cfg.Section("ark").Key("input_xpath_name_kana").String(),
-		zipcode1:     cfg.Section("ark").Key("input_xpath_zipcode1").String(),
-		zipcode2:     cfg.Section("ark").Key("input_xpath_zipcode2").String(),
-		pref:         cfg.Section("ark").Key("input_xpath_pref").String(),
-		city:         cfg.Section("ark").Key("input_xpath_city").String(),
-		street:       cfg.Section("ark").Key("input_xpath_street").String(),
-		building:     cfg.Section("ark").Key("input_xpath_building").String(),
-		phone:        cfg.Section("ark").Key("input_xpath_phone").String(),
-		userEmail:    cfg.Section("ark").Key("input_xpath_user_email").String(),
-		vUserEmail:   cfg.Section("ark").Key("input_xpath_v_user_email").String(),
-		shipping:     cfg.Section("ark").Key("input_xpath_shipping").String(),
-		payment:      cfg.Section("ark").Key("input_xpath_payment").String(),
-		nextPage1:    cfg.Section("ark").Key("input_xpath_next_page1").String(),
-		nextPage2:    cfg.Section("ark").Key("input_xpath_next_page2").String(),
-		nextPage3:    cfg.Section("ark").Key("input_xpath_next_page3").String(),
+		Url:          config.Ark["url"].Url,
+		TargetUrl:    config.Ark["url"].TargetUrl,
+		AddresseeUrl: config.Ark["url"].AddresseeUrl,
+		InputMail:    config.Ark["xpath"].InputMail,
+		InputPw:      config.Ark["xpath"].InputPw,
+		Login:        config.Ark["xpath"].Login,
+		StockBtn:     config.Ark["selector"].StockBtn,
+		CheckWord:    config.Ark["other"].CheckWord,
+		Name:         config.Ark["xpath"].Name,
+		NameKana:     config.Ark["xpath"].NameKana,
+		Zipcode1:     config.Ark["xpath"].Zipcode1,
+		Zipcode2:     config.Ark["xpath"].Zipcode2,
+		Pref:         config.Ark["xpath"].Pref,
+		City:         config.Ark["xpath"].City,
+		Street:       config.Ark["xpath"].Street,
+		Building:     config.Ark["xpath"].Building,
+		Phone:        config.Ark["xpath"].Phone,
+		UserEmail:    config.Ark["xpath"].UserEmail,
+		VUserEmail:   config.Ark["xpath"].VUserEmail,
+		Shipping:     config.Ark["xpath"].Shipping,
+		Payment:      config.Ark["xpath"].Payment,
+		NextPage1:    config.Ark["xpath"].NextPage1,
+		NextPage2:    config.Ark["xpath"].NextPage2,
+		NextPage3:    config.Ark["xpath"].NextPage3,
 		Tracer:       trace.New(os.Stdout),
 	}
 }
@@ -110,7 +115,7 @@ func (t *Ark) Run(user map[string]string) (err error) {
 
 	// 商品ページに遷移
 	if err = retry.Do(func() error {
-		ret = page.Navigate(t.targetUrl)
+		ret = page.Navigate(t.TargetUrl)
 		return ret
 	}, retry.DelayType(func(n uint, config *retry.Config) time.Duration {
 		return time.Duration(n) * time.Second
@@ -121,10 +126,10 @@ func (t *Ark) Run(user map[string]string) (err error) {
 
 	// カートに入れる、カート画面遷移
 	if err = retry.Do(func() error {
-		if ret = page.FindByClass(t.stockBtn).Submit(); ret != nil {
+		if ret = page.FindByClass(t.StockBtn).Submit(); ret != nil {
 			return ret
 		}
-		if ret = page.Navigate(t.addresseeUrl); ret != nil {
+		if ret = page.Navigate(t.AddresseeUrl); ret != nil {
 			return ret
 		}
 		return nil
@@ -137,40 +142,40 @@ func (t *Ark) Run(user map[string]string) (err error) {
 
 	// step1 宛先の入力
 	if err = retry.Do(func() error {
-		if ret = page.FindByXPath(t.name).Fill(user["name"]); ret != nil {
+		if ret = page.FindByXPath(t.Name).Fill(user["name"]); ret != nil {
 			return ret
 		}
-		if ret = page.FindByXPath(t.nameKana).Fill(user["nameKana"]); ret != nil {
+		if ret = page.FindByXPath(t.NameKana).Fill(user["name_kana"]); ret != nil {
 			return ret
 		}
-		if ret = page.FindByXPath(t.zipcode1).Fill(user["zipcode1"]); ret != nil {
+		if ret = page.FindByXPath(t.Zipcode1).Fill(user["zipcode1"]); ret != nil {
 			return ret
 		}
-		if ret = page.FindByXPath(t.zipcode2).Fill(user["zipcode2"]); ret != nil {
+		if ret = page.FindByXPath(t.Zipcode2).Fill(user["zipcode2"]); ret != nil {
 			return ret
 		}
-		if ret = page.FindByXPath(t.pref).Select(user["pref"]); ret != nil {
+		if ret = page.FindByXPath(t.Pref).Select(user["pref"]); ret != nil {
 			return ret
 		}
-		if ret = page.FindByXPath(t.city).Fill(user["city"]); ret != nil {
+		if ret = page.FindByXPath(t.City).Fill(user["city"]); ret != nil {
 			return ret
 		}
-		if ret = page.FindByXPath(t.street).Fill(user["street"]); ret != nil {
+		if ret = page.FindByXPath(t.Street).Fill(user["street"]); ret != nil {
 			return ret
 		}
-		if ret = page.FindByXPath(t.building).Fill(user["building"]); ret != nil {
+		if ret = page.FindByXPath(t.Building).Fill(user["building"]); ret != nil {
 			return ret
 		}
-		if ret = page.FindByXPath(t.phone).Fill(user["phone"]); ret != nil {
+		if ret = page.FindByXPath(t.Phone).Fill(user["phone"]); ret != nil {
 			return ret
 		}
-		if ret = page.FindByXPath(t.userEmail).Fill(user["email"]); ret != nil {
+		if ret = page.FindByXPath(t.UserEmail).Fill(user["email"]); ret != nil {
 			return ret
 		}
-		if ret = page.FindByXPath(t.vUserEmail).Fill(user["email"]); ret != nil {
+		if ret = page.FindByXPath(t.VUserEmail).Fill(user["email"]); ret != nil {
 			return ret
 		}
-		if ret = page.FindByXPath(t.nextPage1).Click(); ret != nil {
+		if ret = page.FindByXPath(t.NextPage1).Click(); ret != nil {
 			return ret
 		}
 		return nil
@@ -183,13 +188,13 @@ func (t *Ark) Run(user map[string]string) (err error) {
 
 	//step2 支払い方法・各種指定
 	if err = retry.Do(func() error {
-		if ret = page.FindByXPath(t.shipping).Click(); ret != nil {
+		if ret = page.FindByXPath(t.Shipping).Click(); ret != nil {
 			return ret
 		}
-		if ret = page.FindByXPath(t.payment).Click(); ret != nil {
+		if ret = page.FindByXPath(t.Payment).Click(); ret != nil {
 			return ret
 		}
-		if ret = page.FindByXPath(t.nextPage2).Click(); ret != nil {
+		if ret = page.FindByXPath(t.NextPage2).Click(); ret != nil {
 			return ret
 		}
 		return nil
@@ -211,8 +216,8 @@ func (t *Ark) Run(user map[string]string) (err error) {
 
 func (t *Ark) getCheckInfo() map[string]string {
 	return map[string]string{
-		"targetUrl":  t.targetUrl,
-		"checkPoint": t.stockBtn,
-		"checkWord":  t.checkWord,
+		"targetUrl":  t.TargetUrl,
+		"checkPoint": t.StockBtn,
+		"checkWord":  t.CheckWord,
 	}
 }
