@@ -36,17 +36,18 @@ type Ark struct {
 	NextPage1    string `toml:"next_page1"`
 	NextPage2    string `toml:"next_page2"`
 	NextPage3    string `toml:"next_page3"`
+	User         User
 	Tracer       trace.Tracer
 }
 
 type TargetSite interface {
-	Run(map[string]string) error
+	Run() error
 	getCheckInfo() map[string]string
 }
 
-type Config struct {
-	//User map[string]User
-	Ark map[string]Ark
+type ArkConfig struct {
+	Ark  map[string]Ark
+	User User
 }
 
 func NewArk() *Ark {
@@ -54,7 +55,7 @@ func NewArk() *Ark {
 	// →main.goでもini.Load()をしていて、パスはmain.goに合わせてる感じ？
 	// main.goでは相対パスなのに大して、こちらは絶対パス（？）少なくとも相対パスではない
 	// 最初読み込んだら	var config Config２回目以降の読み込みは、１回目と同じ読み込み方で良いということ？
-	var config Config
+	var config ArkConfig
 	if _, err := toml.DecodeFile("./config.toml", &config); err != nil {
 		fmt.Printf("Failed to open toml file: %v", err)
 		return nil
@@ -85,11 +86,12 @@ func NewArk() *Ark {
 		NextPage1:    config.Ark["xpath"].NextPage1,
 		NextPage2:    config.Ark["xpath"].NextPage2,
 		NextPage3:    config.Ark["xpath"].NextPage3,
+		User:         config.User,
 		Tracer:       trace.New(os.Stdout),
 	}
 }
 
-func (t *Ark) Run(user map[string]string) (err error) {
+func (t *Ark) Run() (err error) {
 
 	// ブラウザ：chromeを指定して起動
 	driver := agouti.ChromeDriver(agouti.Browser("chrome"))
@@ -142,37 +144,37 @@ func (t *Ark) Run(user map[string]string) (err error) {
 
 	// step1 宛先の入力
 	if err = retry.Do(func() error {
-		if ret = page.FindByXPath(t.Name).Fill(user["name"]); ret != nil {
+		if ret = page.FindByXPath(t.Name).Fill(t.User.Name); ret != nil {
 			return ret
 		}
-		if ret = page.FindByXPath(t.NameKana).Fill(user["name_kana"]); ret != nil {
+		if ret = page.FindByXPath(t.NameKana).Fill(t.User.NameKana); ret != nil {
 			return ret
 		}
-		if ret = page.FindByXPath(t.Zipcode1).Fill(user["zipcode1"]); ret != nil {
+		if ret = page.FindByXPath(t.Zipcode1).Fill(t.User.Zipcode1); ret != nil {
 			return ret
 		}
-		if ret = page.FindByXPath(t.Zipcode2).Fill(user["zipcode2"]); ret != nil {
+		if ret = page.FindByXPath(t.Zipcode2).Fill(t.User.Zipcode2); ret != nil {
 			return ret
 		}
-		if ret = page.FindByXPath(t.Pref).Select(user["pref"]); ret != nil {
+		if ret = page.FindByXPath(t.Pref).Select(t.User.Pref); ret != nil {
 			return ret
 		}
-		if ret = page.FindByXPath(t.City).Fill(user["city"]); ret != nil {
+		if ret = page.FindByXPath(t.City).Fill(t.User.City); ret != nil {
 			return ret
 		}
-		if ret = page.FindByXPath(t.Street).Fill(user["street"]); ret != nil {
+		if ret = page.FindByXPath(t.Street).Fill(t.User.Street); ret != nil {
 			return ret
 		}
-		if ret = page.FindByXPath(t.Building).Fill(user["building"]); ret != nil {
+		if ret = page.FindByXPath(t.Building).Fill(t.User.Building); ret != nil {
 			return ret
 		}
-		if ret = page.FindByXPath(t.Phone).Fill(user["phone"]); ret != nil {
+		if ret = page.FindByXPath(t.Phone).Fill(t.User.Phone); ret != nil {
 			return ret
 		}
-		if ret = page.FindByXPath(t.UserEmail).Fill(user["email"]); ret != nil {
+		if ret = page.FindByXPath(t.UserEmail).Fill(t.User.Email); ret != nil {
 			return ret
 		}
-		if ret = page.FindByXPath(t.VUserEmail).Fill(user["email"]); ret != nil {
+		if ret = page.FindByXPath(t.VUserEmail).Fill(t.User.Email); ret != nil {
 			return ret
 		}
 		if ret = page.FindByXPath(t.NextPage1).Click(); ret != nil {
