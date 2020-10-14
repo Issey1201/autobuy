@@ -1,6 +1,6 @@
 package autobuy
 
-type User struct {
+type user struct {
 	Email    string `toml:"email"`
 	Password string `toml:"password"`
 	Name     string `toml:"name"`

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -26,7 +27,11 @@ func consumer(t autobuy.TargetSite, ch chan bool) {
 }
 
 func main() {
-	ark := autobuy.NewArk()
+	flag.Parse()
+	targets := flag.Args()
+	// とりあえずarkだけ対応, 将来的に以下みたいなものを想定
+	// go run main.go ark amazon newEgg
+	ark := autobuy.NewArk(fmt.Sprintf("./config/%v.toml", targets[0]))
 	stock := make(chan bool)
 
 	var err error
