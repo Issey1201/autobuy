@@ -1,0 +1,46 @@
+#title = "TOML Example"
+[user]
+email = "takai.1201@icloud.com"
+password = ""
+name = "高井　一成"
+name_kana = "タカイ　イッセイ"
+zipcode1 = "123"
+zipcode2 = "0851"
+pref = "東京都"
+city = "足立区梅田"
+street = "6丁目-28-3"
+building = "ビューキャニオン402"
+phone = "07039686958"
+
+[ark]
+[ark.url]
+target_url = "https://www.ark-pc.co.jp/i/10160069/"
+base_url = "https://www.ark-pc.co.jp"
+addressee_url = "https://www.ark-pc.co.jp/checkout_step1/"
+
+[ark.selector]
+stock = "btn-addcart"
+
+[ark.xpath]
+email = "//*[@id=\"email\"]"
+password = "/html/body/div/div[1]/div[2]/div/div/div[2]/div[1]/div/form/div[2]/input"
+login = "/html/body/div/div[1]/div[2]/div/div/div[2]/div[1]/div/form/input[3]"
+name = "//*[@id=\"address_name\"]"
+name_kana = "//*[@id=\"address_kana\"]"
+zipcode1 = "//*[@id=\"address_zipcode1\"]"
+zipcode2 = "//*[@id=\"address_zipcode2\"]"
+pref = "//*[@id=\"add_region\"]/select"
+city = "//*[@id=\"address_city\"]"
+street = "//*[@id=\"address_street\"]"
+building = "//*[@id=\"address_building\"]"
+phone = "//*[@id=\"address_phone\"]"
+user_email = "//*[@id=\"user_email\"]"
+v_user_email = "//*[@id=\"v_user_email\"]"
+shipping = "//*[@id=\"deltype_01\"]"
+payment = "//*[@id=\"payment_09\"]"
+next_page1 = "//*[@id=\"shipping-form\"]/div[3]/input[3]"
+next_page2 = "//*[@id=\"step2-next\"]"
+next_page3 = "//*[@id=\"submit-button\"]"
+
+[ark.other]
+in_stock_word = "在庫あり"

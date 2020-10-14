@@ -26,7 +26,7 @@ func consumer(t autobuy.TargetSite, ch chan bool) {
 }
 
 func main() {
-	ark := autobuy.NewArk()
+	ark := autobuy.NewArk("./config.toml")
 	stock := make(chan bool)
 
 	var err error

@@ -53,7 +53,6 @@ func NewArk(confPath string) *ark {
 	}
 
 	if _, err := toml.DecodeFile(confPath, &config); err != nil {
-		//if _, err := toml.DecodeFile("./config.toml", &config); err != nil {
 		fmt.Printf("Failed to open toml file: %v", err)
 		return nil
 	}
@@ -125,11 +124,21 @@ func (t *ark) Run() (err error) {
 		return err
 	}
 
-	// カートに入れる、カート画面遷移
+	// カートに入れる
 	if err = retry.Do(func() error {
 		if ret = page.FindByClass(t.StockBtn).Click(); ret != nil {
 			return ret
 		}
+		return nil
+	}, retry.DelayType(func(n uint, config *retry.Config) time.Duration {
+		return time.Duration(n) * time.Second
+	}), retry.Attempts(5)); err != nil {
+		fmt.Printf("Failed to add to cart: %v\n", err)
+		return err
+	}
+
+	// カート画面遷移
+	if err = retry.Do(func() error {
 		if ret = page.Navigate(t.AddresseeUrl); ret != nil {
 			return ret
 		}
