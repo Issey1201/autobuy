@@ -1,16 +1,16 @@
 #title = "TOML Example"
 [user]
-email = "takai.1201@icloud.com"
+email = "hogehoge@sample.cp.jp"
 password = ""
-name = "高井　一成"
-name_kana = "タカイ　イッセイ"
+name = "田中　太郎"
+name_kana = "タナカ　タロウ"
 zipcode1 = "123"
-zipcode2 = "0851"
+zipcode2 = "4567"
 pref = "東京都"
-city = "足立区梅田"
-street = "6丁目-28-3"
-building = "ビューキャニオン402"
-phone = "07039686958"
+city = "渋谷区渋谷"
+street = "1丁目-23-456"
+building = "渋谷ビルディング1234号室"
+phone = "0120117117"
 
 [ark]
 [ark.url]

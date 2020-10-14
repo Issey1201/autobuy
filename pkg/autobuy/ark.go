@@ -12,74 +12,66 @@ import (
 	"github.com/sclevine/agouti"
 )
 
-type ark struct {
-	Url          string `toml:"base_url"`
+type arkUrl struct {
+	BaseUrl      string `toml:"base_url"`
 	TargetUrl    string `toml:"target_url"`
 	AddresseeUrl string `toml:"addressee_url"`
-	InputMail    string `toml:"email"`
-	InputPw      string `toml:"password"`
-	Login        string `toml:"login"`
-	StockBtn     string `toml:"stock"`
-	CheckWord    string `toml:"in_stock_word"`
-	Name         string `toml:"name"`
-	NameKana     string `toml:"name_kana"`
-	Zipcode1     string `toml:"zipcode1"`
-	Zipcode2     string `toml:"zipcode2"`
-	Pref         string `toml:"pref"`
-	City         string `toml:"city"`
-	Street       string `toml:"street"`
-	Building     string `toml:"building"`
-	Phone        string `toml:"phone"`
-	UserEmail    string `toml:"user_email"`
-	VUserEmail   string `toml:"v_user_email"`
-	Shipping     string `toml:"shipping"`
-	Payment      string `toml:"payment"`
-	NextPage1    string `toml:"next_page1"`
-	NextPage2    string `toml:"next_page2"`
-	NextPage3    string `toml:"next_page3"`
-	User         user
-	Tracer       trace.Tracer
+}
+
+type arlSelector struct {
+	StockBtn string `toml:"stock"`
+}
+
+type arkXpath struct {
+	InputMail  string `toml:"email"`
+	InputPw    string `toml:"password"`
+	Login      string `toml:"login"`
+	Name       string `toml:"name"`
+	NameKana   string `toml:"name_kana"`
+	Zipcode1   string `toml:"zipcode1"`
+	Zipcode2   string `toml:"zipcode2"`
+	Pref       string `toml:"pref"`
+	City       string `toml:"city"`
+	Street     string `toml:"street"`
+	Building   string `toml:"building"`
+	Phone      string `toml:"phone"`
+	UserEmail  string `toml:"user_email"`
+	VUserEmail string `toml:"v_user_email"`
+	Shipping   string `toml:"shipping"`
+	Payment    string `toml:"payment"`
+	NextPage1  string `toml:"next_page1"`
+	NextPage2  string `toml:"next_page2"`
+	NextPage3  string `toml:"next_page3"`
+}
+
+type arkOther struct {
+	CheckWord string `toml:"in_stock_word"`
+}
+
+type arkConf struct {
+	Url      arkUrl
+	Selector arlSelector
+	Xpath    arkXpath
+	Other    arkOther
+	User     user
+}
+
+type ark struct {
+	Config arkConf
+	Tracer trace.Tracer
 }
 
 func NewArk(confPath string) *ark {
 
-	var config struct {
-		Ark  map[string]ark
-		User user
-	}
-
+	var config arkConf
 	if _, err := toml.DecodeFile(confPath, &config); err != nil {
 		fmt.Printf("Failed to open toml file: %v", err)
 		return nil
 	}
 
 	return &ark{
-		Url:          config.Ark["url"].Url,
-		TargetUrl:    config.Ark["url"].TargetUrl,
-		AddresseeUrl: config.Ark["url"].AddresseeUrl,
-		InputMail:    config.Ark["xpath"].InputMail,
-		InputPw:      config.Ark["xpath"].InputPw,
-		Login:        config.Ark["xpath"].Login,
-		StockBtn:     config.Ark["selector"].StockBtn,
-		CheckWord:    config.Ark["other"].CheckWord,
-		Name:         config.Ark["xpath"].Name,
-		NameKana:     config.Ark["xpath"].NameKana,
-		Zipcode1:     config.Ark["xpath"].Zipcode1,
-		Zipcode2:     config.Ark["xpath"].Zipcode2,
-		Pref:         config.Ark["xpath"].Pref,
-		City:         config.Ark["xpath"].City,
-		Street:       config.Ark["xpath"].Street,
-		Building:     config.Ark["xpath"].Building,
-		Phone:        config.Ark["xpath"].Phone,
-		UserEmail:    config.Ark["xpath"].UserEmail,
-		VUserEmail:   config.Ark["xpath"].VUserEmail,
-		Shipping:     config.Ark["xpath"].Shipping,
-		Payment:      config.Ark["xpath"].Payment,
-		NextPage1:    config.Ark["xpath"].NextPage1,
-		NextPage2:    config.Ark["xpath"].NextPage2,
-		NextPage3:    config.Ark["xpath"].NextPage3,
-		User:         config.User,
-		Tracer:       trace.New(os.Stdout),
+		Config: config,
+		Tracer: trace.New(os.Stdout),
 	}
 }
 
@@ -109,7 +101,7 @@ func (t *ark) Run() (err error) {
 
 	// 商品ページに遷移
 	if err = retry.Do(func() error {
-		if ret = page.Navigate(t.TargetUrl); ret != nil {
+		if ret = page.Navigate(t.Config.Url.TargetUrl); ret != nil {
 			return ret
 		}
 		return nil
@@ -122,7 +114,7 @@ func (t *ark) Run() (err error) {
 
 	// カートに入れる
 	if err = retry.Do(func() error {
-		if ret = page.FindByClass(t.StockBtn).Click(); ret != nil {
+		if ret = page.FindByClass(t.Config.Selector.StockBtn).Click(); ret != nil {
 			return ret
 		}
 		return nil
@@ -135,10 +127,10 @@ func (t *ark) Run() (err error) {
 
 	// カート画面遷移
 	if err = retry.Do(func() error {
-		if ret = page.Navigate(t.AddresseeUrl); ret != nil {
+		if ret = page.Navigate(t.Config.Url.AddresseeUrl); ret != nil {
 			return ret
 		}
-		if url, _ := page.URL(); url != t.AddresseeUrl {
+		if url, _ := page.URL(); url != t.Config.Url.AddresseeUrl {
 			return errors.New("failed to move page")
 		}
 		return nil
@@ -151,40 +143,40 @@ func (t *ark) Run() (err error) {
 
 	// step1 宛先の入力
 	if err = retry.Do(func() error {
-		if ret = page.FindByXPath(t.Name).Fill(t.User.Name); ret != nil {
+		if ret = page.FindByXPath(t.Config.Xpath.Name).Fill(t.Config.User.Name); ret != nil {
 			return ret
 		}
-		if ret = page.FindByXPath(t.NameKana).Fill(t.User.NameKana); ret != nil {
+		if ret = page.FindByXPath(t.Config.Xpath.NameKana).Fill(t.Config.User.NameKana); ret != nil {
 			return ret
 		}
-		if ret = page.FindByXPath(t.Zipcode1).Fill(t.User.Zipcode1); ret != nil {
+		if ret = page.FindByXPath(t.Config.Xpath.Zipcode1).Fill(t.Config.User.Zipcode1); ret != nil {
 			return ret
 		}
-		if ret = page.FindByXPath(t.Zipcode2).Fill(t.User.Zipcode2); ret != nil {
+		if ret = page.FindByXPath(t.Config.Xpath.Zipcode2).Fill(t.Config.User.Zipcode2); ret != nil {
 			return ret
 		}
-		if ret = page.FindByXPath(t.Pref).Select(t.User.Pref); ret != nil {
+		if ret = page.FindByXPath(t.Config.Xpath.Pref).Select(t.Config.User.Pref); ret != nil {
 			return ret
 		}
-		if ret = page.FindByXPath(t.City).Fill(t.User.City); ret != nil {
+		if ret = page.FindByXPath(t.Config.Xpath.City).Fill(t.Config.User.City); ret != nil {
 			return ret
 		}
-		if ret = page.FindByXPath(t.Street).Fill(t.User.Street); ret != nil {
+		if ret = page.FindByXPath(t.Config.Xpath.Street).Fill(t.Config.User.Street); ret != nil {
 			return ret
 		}
-		if ret = page.FindByXPath(t.Building).Fill(t.User.Building); ret != nil {
+		if ret = page.FindByXPath(t.Config.Xpath.Building).Fill(t.Config.User.Building); ret != nil {
 			return ret
 		}
-		if ret = page.FindByXPath(t.Phone).Fill(t.User.Phone); ret != nil {
+		if ret = page.FindByXPath(t.Config.Xpath.Phone).Fill(t.Config.User.Phone); ret != nil {
 			return ret
 		}
-		if ret = page.FindByXPath(t.UserEmail).Fill(t.User.Email); ret != nil {
+		if ret = page.FindByXPath(t.Config.Xpath.UserEmail).Fill(t.Config.User.Email); ret != nil {
 			return ret
 		}
-		if ret = page.FindByXPath(t.VUserEmail).Fill(t.User.Email); ret != nil {
+		if ret = page.FindByXPath(t.Config.Xpath.VUserEmail).Fill(t.Config.User.Email); ret != nil {
 			return ret
 		}
-		if ret = page.FindByXPath(t.NextPage1).Click(); ret != nil {
+		if ret = page.FindByXPath(t.Config.Xpath.NextPage1).Click(); ret != nil {
 			return ret
 		}
 		return nil
@@ -195,15 +187,15 @@ func (t *ark) Run() (err error) {
 		return err
 	}
 
-	//step2 支払い方法・各種指定
+	// step2 支払い方法・各種指定
 	if err = retry.Do(func() error {
-		if ret = page.FindByXPath(t.Shipping).Click(); ret != nil {
+		if ret = page.FindByXPath(t.Config.Xpath.Shipping).Click(); ret != nil {
 			return ret
 		}
-		if ret = page.FindByXPath(t.Payment).Click(); ret != nil {
+		if ret = page.FindByXPath(t.Config.Xpath.Payment).Click(); ret != nil {
 			return ret
 		}
-		if ret = page.FindByXPath(t.NextPage2).Click(); ret != nil {
+		if ret = page.FindByXPath(t.Config.Xpath.NextPage2).Click(); ret != nil {
 			return ret
 		}
 		return nil
@@ -214,8 +206,8 @@ func (t *ark) Run() (err error) {
 		return err
 	}
 
-	//step3 注文確認画面→コメントアウト外しちゃうと買っちゃうはず、テストしてません。
-	//if err := page.FindByXPath(t.NextPage3).Click(); err != nil {
+	//// step3 注文確認画面→コメントアウト外しちゃうと買っちゃうはず、テストしてません。
+	//if err := page.FindByXPath(t.Config.Xpath.NextPage3).Click(); err != nil {
 	//	fmt.Printf("Failed to purchase: %v", err)
 	//	return err
 	//}
@@ -225,8 +217,8 @@ func (t *ark) Run() (err error) {
 
 func (t *ark) getCheckInfo() map[string]string {
 	return map[string]string{
-		"targetUrl":  t.TargetUrl,
-		"checkPoint": t.StockBtn,
-		"checkWord":  t.CheckWord,
+		"targetUrl":  t.Config.Url.TargetUrl,
+		"checkPoint": t.Config.Selector.StockBtn,
+		"checkWord":  t.Config.Other.CheckWord,
 	}
 }
