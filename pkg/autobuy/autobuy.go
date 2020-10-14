@@ -11,7 +11,7 @@ import (
 	"github.com/sclevine/agouti"
 )
 
-type Ark struct {
+type ark struct {
 	Url          string `toml:"base_url"`
 	TargetUrl    string `toml:"target_url"`
 	AddresseeUrl string `toml:"addressee_url"`
@@ -36,7 +36,7 @@ type Ark struct {
 	NextPage1    string `toml:"next_page1"`
 	NextPage2    string `toml:"next_page2"`
 	NextPage3    string `toml:"next_page3"`
-	User         User
+	User         user
 	Tracer       trace.Tracer
 }
 
@@ -45,23 +45,20 @@ type TargetSite interface {
 	getCheckInfo() map[string]string
 }
 
-type ArkConfig struct {
-	Ark  map[string]Ark
-	User User
-}
+func NewArk(confPath string) *ark {
 
-func NewArk() *Ark {
-	// 相対パスじゃなくて絶対パスにしたい
-	// →main.goでもini.Load()をしていて、パスはmain.goに合わせてる感じ？
-	// main.goでは相対パスなのに大して、こちらは絶対パス（？）少なくとも相対パスではない
-	// 最初読み込んだら	var config Config２回目以降の読み込みは、１回目と同じ読み込み方で良いということ？
-	var config ArkConfig
-	if _, err := toml.DecodeFile("./config.toml", &config); err != nil {
+	var config struct {
+		Ark  map[string]ark
+		User user
+	}
+
+	if _, err := toml.DecodeFile(confPath, &config); err != nil {
+		//if _, err := toml.DecodeFile("./config.toml", &config); err != nil {
 		fmt.Printf("Failed to open toml file: %v", err)
 		return nil
 	}
 
-	return &Ark{
+	return &ark{
 		Url:          config.Ark["url"].Url,
 		TargetUrl:    config.Ark["url"].TargetUrl,
 		AddresseeUrl: config.Ark["url"].AddresseeUrl,
@@ -91,7 +88,7 @@ func NewArk() *Ark {
 	}
 }
 
-func (t *Ark) Run() (err error) {
+func (t *ark) Run() (err error) {
 
 	// ブラウザ：chromeを指定して起動
 	driver := agouti.ChromeDriver(agouti.Browser("chrome"))
@@ -117,18 +114,20 @@ func (t *Ark) Run() (err error) {
 
 	// 商品ページに遷移
 	if err = retry.Do(func() error {
-		ret = page.Navigate(t.TargetUrl)
-		return ret
+		if ret = page.Navigate(t.TargetUrl); ret != nil {
+			return ret
+		}
+		return nil
 	}, retry.DelayType(func(n uint, config *retry.Config) time.Duration {
 		return time.Duration(n) * time.Second
-	}), retry.Attempts(3)); err != nil {
-		fmt.Printf("Failed to navigate: %v\n", err)
+	}), retry.Attempts(5)); err != nil {
+		fmt.Printf("Failed to add to cart: %v\n", err)
 		return err
 	}
 
 	// カートに入れる、カート画面遷移
 	if err = retry.Do(func() error {
-		if ret = page.FindByClass(t.StockBtn).Submit(); ret != nil {
+		if ret = page.FindByClass(t.StockBtn).Click(); ret != nil {
 			return ret
 		}
 		if ret = page.Navigate(t.AddresseeUrl); ret != nil {
@@ -137,7 +136,7 @@ func (t *Ark) Run() (err error) {
 		return nil
 	}, retry.DelayType(func(n uint, config *retry.Config) time.Duration {
 		return time.Duration(n) * time.Second
-	}), retry.Attempts(3)); err != nil {
+	}), retry.Attempts(5)); err != nil {
 		fmt.Printf("Failed to add to cart: %v\n", err)
 		return err
 	}
@@ -183,7 +182,7 @@ func (t *Ark) Run() (err error) {
 		return nil
 	}, retry.DelayType(func(n uint, config *retry.Config) time.Duration {
 		return time.Duration(n) * time.Second
-	}), retry.Attempts(3)); err != nil {
+	}), retry.Attempts(5)); err != nil {
 		fmt.Printf("Failed at input page: %v\n", err)
 		return err
 	}
@@ -202,13 +201,13 @@ func (t *Ark) Run() (err error) {
 		return nil
 	}, retry.DelayType(func(n uint, config *retry.Config) time.Duration {
 		return time.Duration(n) * time.Second
-	}), retry.Attempts(3)); err != nil {
+	}), retry.Attempts(5)); err != nil {
 		fmt.Printf("Failed at payment page: %v\n", err)
 		return err
 	}
 
 	//step3 注文確認画面→コメントアウト外しちゃうと買っちゃうはず、テストしてません。
-	//if err := page.FindByXPath(t.nextPage3).Click(); err != nil {
+	//if err := page.FindByXPath(t.NextPage3).Click(); err != nil {
 	//	fmt.Printf("Failed to purchase: %v", err)
 	//	return err
 	//}
@@ -216,7 +215,7 @@ func (t *Ark) Run() (err error) {
 	return nil
 }
 
-func (t *Ark) getCheckInfo() map[string]string {
+func (t *ark) getCheckInfo() map[string]string {
 	return map[string]string{
 		"targetUrl":  t.TargetUrl,
 		"checkPoint": t.StockBtn,
