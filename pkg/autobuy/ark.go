@@ -18,7 +18,7 @@ type arkUrl struct {
 	AddresseeUrl string `toml:"addressee_url"`
 }
 
-type arlSelector struct {
+type arkSelector struct {
 	StockBtn string `toml:"stock"`
 }
 
@@ -50,7 +50,7 @@ type arkOther struct {
 
 type arkConf struct {
 	Url      arkUrl
-	Selector arlSelector
+	Selector arkSelector
 	Xpath    arkXpath
 	Other    arkOther
 	User     user
