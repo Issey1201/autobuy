@@ -4,18 +4,32 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/PuerkitoBio/goquery"
 )
+
+func CheckStock(t TargetSite, targetUrl string, resultCh chan<- bool) {
+	for {
+		if result := Check(t, targetUrl); result == false {
+			resultCh <- result
+			time.Sleep(1 * time.Minute)
+		} else {
+			resultCh <- result
+			break
+		}
+	}
+}
 
 // checkしたいのはArk型だけじゃないから、
 // TargetSiteインターフェースを引数にして色々なサイトをポインタとして受け取りたい→interfaceをポインタで受け取るのはきつい？
 //　→(t *Ark)check()bool　を、check(t TargetSite)boolとし、
 //  tの中身はそれを取り出すメソッド(getCheckInfo)によって取得
-func Check(t TargetSite) bool {
+// 引数の型で t *TargetSite はなぜダメ？
+func Check(t TargetSite, targetUrl string) bool {
 
 	info := t.getCheckInfo()
-	res, err := http.Get(info["targetUrl"])
+	res, err := http.Get(targetUrl)
 	if err != nil {
 		panic(err)
 	}
