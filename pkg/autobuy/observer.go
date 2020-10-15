@@ -19,6 +19,7 @@ func CheckStock(t TargetSite, targetUrl string, resultCh chan<- bool) {
 			break
 		}
 	}
+	close(resultCh)
 }
 
 // checkしたいのはArk型だけじゃないから、
