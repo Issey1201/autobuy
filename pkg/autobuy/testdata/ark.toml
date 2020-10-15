@@ -12,16 +12,15 @@ street = "1丁目-23-456"
 building = "渋谷ビルディング1234号室"
 phone = "0120117117"
 
-[ark]
-[ark.url]
-target_url = "https://www.ark-pc.co.jp/i/10160069/"
+[url]
+target_url = "https://www.ark-pc.co.jp/i/11501894/"
 base_url = "https://www.ark-pc.co.jp"
 addressee_url = "https://www.ark-pc.co.jp/checkout_step1/"
 
-[ark.selector]
+[selector]
 stock = "btn-addcart"
 
-[ark.xpath]
+[xpath]
 email = "//*[@id=\"email\"]"
 password = "/html/body/div/div[1]/div[2]/div/div/div[2]/div[1]/div/form/div[2]/input"
 login = "/html/body/div/div[1]/div[2]/div/div/div[2]/div[1]/div/form/input[3]"
@@ -42,5 +41,5 @@ next_page1 = "//*[@id=\"shipping-form\"]/div[3]/input[3]"
 next_page2 = "//*[@id=\"step2-next\"]"
 next_page3 = "//*[@id=\"submit-button\"]"
 
-[ark.other]
+[other]
 in_stock_word = "在庫あり"

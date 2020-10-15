@@ -13,12 +13,12 @@ import (
 )
 
 type arkUrl struct {
-	BaseUrl      string `toml:"base_url"`
-	TargetUrl    string `toml:"target_url"`
-	AddresseeUrl string `toml:"addressee_url"`
+	BaseUrl      string   `toml:"base_url"`
+	TargetUrl    []string `toml:"target_url"`
+	AddresseeUrl string   `toml:"addressee_url"`
 }
 
-type arlSelector struct {
+type arkSelector struct {
 	StockBtn string `toml:"stock"`
 }
 
@@ -50,7 +50,7 @@ type arkOther struct {
 
 type arkConf struct {
 	Url      arkUrl
-	Selector arlSelector
+	Selector arkSelector
 	Xpath    arkXpath
 	Other    arkOther
 	User     user
@@ -75,7 +75,7 @@ func NewArk(confPath string) *ark {
 	}
 }
 
-func (t *ark) Run() (err error) {
+func (t *ark) Run(targetUrl string) (err error) {
 
 	// ブラウザ：chromeを指定して起動
 	driver := agouti.ChromeDriver(agouti.Browser("chrome"))
@@ -101,7 +101,7 @@ func (t *ark) Run() (err error) {
 
 	// 商品ページに遷移
 	if err = retry.Do(func() error {
-		if ret = page.Navigate(t.Config.Url.TargetUrl); ret != nil {
+		if ret = page.Navigate(targetUrl); ret != nil {
 			return ret
 		}
 		return nil
@@ -217,7 +217,6 @@ func (t *ark) Run() (err error) {
 
 func (t *ark) getCheckInfo() map[string]string {
 	return map[string]string{
-		"targetUrl":  t.Config.Url.TargetUrl,
 		"checkPoint": t.Config.Selector.StockBtn,
 		"checkWord":  t.Config.Other.CheckWord,
 	}

@@ -1,6 +1,6 @@
 package autobuy
 
 type TargetSite interface {
-	Run() error
+	Run(string) error
 	getCheckInfo() map[string]string
 }
