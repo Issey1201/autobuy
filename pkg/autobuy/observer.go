@@ -4,22 +4,44 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
 )
 
-func CheckStock(t TargetSite, targetUrl string, resultCh chan<- bool) {
+type CheckResponse struct {
+	StockStatus bool
+	Url         string
+}
+
+func CheckStock(t TargetSite, targetUrl string, ch chan CheckResponse, wg *sync.WaitGroup) {
 	for {
-		if result := Check(t, targetUrl); result == false {
-			resultCh <- result
-			time.Sleep(1 * time.Minute)
-		} else {
-			resultCh <- result
+		result := Check(t, targetUrl)
+		cr := &CheckResponse{
+			StockStatus: result,
+			Url:         targetUrl,
+		}
+		// １つ以上あるCheckStockゴルーチンの中で、１つでも在庫があったのであれば、
+		// 他のゴルーチン終了させてチャネル送信したくない
+		ch <- *cr
+
+		if cr.StockStatus == true {
+			// 現状チャネルをcloseする時はどこか１つのURLにて在庫があった場合であるが、
+			// 上記以外のURLに対するゴルーチンでチャネルを送信してしまうのでエラーを吐く場合がある
+			// 在庫ないURLを全て最初に処理され、最後に在庫あったURLのゴルーチンが処理された場合に限りエラーを吐かない...1'
+			// 1'の場合、在庫がないURLのゴルーチンが勝手に終了されているのは謎、、、
+			// 在庫がないURLのゴルーチンのbreakされてないからfor文はまだ回っているはず
+			close(ch)
+			//wg.Done()
+			_ = wg
 			break
+		} else {
+			time.Sleep(10 * time.Second)
 		}
 	}
-	close(resultCh)
+	//wg.Wait()
+	//defer close(f)
 }
 
 // checkしたいのはArk型だけじゃないから、
