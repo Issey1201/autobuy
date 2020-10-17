@@ -21,7 +21,7 @@ func main() {
 	var err error
 
 	for _, v := range ark.Config.Url.TargetUrl {
-		go autobuy.CheckStock(ark, v, ch)
+		go autobuy.Check(ark, v, ch)
 	}
 
 	for v := range ch {

@@ -14,9 +14,9 @@ type CheckResponse struct {
 	Url         string
 }
 
-func CheckStock(t TargetSite, targetUrl string, ch chan CheckResponse) {
+func Check(t TargetSite, targetUrl string, ch chan CheckResponse) {
 	for {
-		result := Check(t, targetUrl)
+		result := CheckStock(t, targetUrl)
 		cr := &CheckResponse{
 			StockStatus: result,
 			Url:         targetUrl,
@@ -26,12 +26,12 @@ func CheckStock(t TargetSite, targetUrl string, ch chan CheckResponse) {
 		if cr.StockStatus == true {
 			break
 		} else {
-			time.Sleep(15 * time.Second)
+			time.Sleep(1 * time.Minute)
 		}
 	}
 }
 
-func Check(t TargetSite, targetUrl string) bool {
+func CheckStock(t TargetSite, targetUrl string) bool {
 
 	info := t.getCheckInfo()
 	res, err := http.Get(targetUrl)
