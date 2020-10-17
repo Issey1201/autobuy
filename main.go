@@ -18,16 +18,19 @@ func main() {
 	ark := autobuy.NewArk(fmt.Sprintf("./config/%v.toml", targets[0]))
 
 	ch := make(chan autobuy.CheckResponse, len(ark.Config.Url.TargetUrl))
+	done := make(chan struct{})
 	var err error
 
 	for _, v := range ark.Config.Url.TargetUrl {
-		go autobuy.CheckStock(ark, v, ch)
+		go autobuy.Check(ark, v, ch, done)
 	}
 
+Loop:
 	for v := range ch {
 		switch v.StockStatus {
 		case true:
-			fmt.Println(time.Now(), " ", v.Url, ": 在庫ある")
+			fmt.Println(time.Now().String(), " ", v.Url, ": 在庫ある")
+			close(done)
 			if err = ark.Run(v.Url); err != nil {
 				log.Fatalln("Failed to run")
 			}
@@ -35,9 +38,9 @@ func main() {
 				fmt.Println("Failed to Notificator")
 			}
 			close(ch)
-			break
+			break Loop
 		case false:
-			fmt.Println(time.Now(), " ", v.Url, ": 在庫なし")
+			fmt.Println(time.Now().String(), " ", v.Url, ": 在庫なし")
 		}
 	}
 }
