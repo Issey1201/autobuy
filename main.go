@@ -4,11 +4,19 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"os"
 	"time"
 
 	"github.com/Issey1201/pkg/autobuy"
 	"github.com/Issey1201/pkg/notify"
+	"github.com/joho/godotenv"
 )
+
+func init() {
+	if err := godotenv.Load(fmt.Sprintf("./%s.env", os.Getenv("GO_ENV"))); err != nil {
+		log.Fatalf("failed to open env: %v\n", err)
+	}
+}
 
 func main() {
 	flag.Parse()
@@ -25,22 +33,22 @@ func main() {
 		go autobuy.Check(ark, v, ch, done)
 	}
 
-	Loop:
-		for v := range ch {
-			switch v.StockStatus {
-			case true:
-				fmt.Println(time.Now().String(), " ", v.Url, ": 在庫ある")
-				close(done)
-				if err = ark.Run(v.Url); err != nil {
-					log.Fatalln("Failed to run")
-				}
-				if err = notify.Notificator(); err != nil {
-					fmt.Println("Failed to Notificator")
-				}
-				close(ch)
-				break Loop
-			case false:
-				fmt.Println(time.Now().String(), " ", v.Url, ": 在庫なし")
+Loop:
+	for v := range ch {
+		switch v.StockStatus {
+		case true:
+			fmt.Println(time.Now().String(), " ", v.Url, ": 在庫ある")
+			close(done)
+			if err = ark.Run(v.Url); err != nil {
+				log.Fatalln("Failed to run")
 			}
+			if err = notify.Notificator(); err != nil {
+				fmt.Println("Failed to Notificator")
+			}
+			close(ch)
+			break Loop
+		case false:
+			fmt.Println(time.Now().String(), " ", v.Url, ": 在庫なし")
 		}
+	}
 }

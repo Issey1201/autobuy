@@ -6,15 +6,12 @@ import (
 	"os"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/joho/godotenv"
 )
 
 var Token string
 
 func Notificator() error {
-	if err := godotenv.Load(fmt.Sprintf("./%s.env", os.Getenv("GO_ENV"))); err != nil {
-		fmt.Printf("failed to open env: %v\n", err)
-	}
+
 	Token = os.Getenv("DISCORD_TOKEN")
 
 	if len(Token) == 0 {
