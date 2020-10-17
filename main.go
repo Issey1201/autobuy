@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/Issey1201/pkg/autobuy"
 	"github.com/Issey1201/pkg/notify"
@@ -26,7 +27,7 @@ func main() {
 	for v := range ch {
 		switch v.StockStatus {
 		case true:
-			fmt.Println(v.Url, ": 在庫ある")
+			fmt.Println(time.Now(), " ", v.Url, ": 在庫ある")
 			if err = ark.Run(v.Url); err != nil {
 				log.Fatalln("Failed to run")
 			}
@@ -36,7 +37,7 @@ func main() {
 			close(ch)
 			break
 		case false:
-			fmt.Println(v.Url, ": 在庫なし")
+			fmt.Println(time.Now(), " ", v.Url, ": 在庫なし")
 		}
 	}
 }

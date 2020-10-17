@@ -26,7 +26,7 @@ func CheckStock(t TargetSite, targetUrl string, ch chan CheckResponse) {
 		if cr.StockStatus == true {
 			break
 		} else {
-			time.Sleep(10 * time.Second)
+			time.Sleep(15 * time.Second)
 		}
 	}
 }
