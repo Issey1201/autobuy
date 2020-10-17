@@ -14,19 +14,22 @@ type CheckResponse struct {
 	Url         string
 }
 
-func Check(t TargetSite, targetUrl string, ch chan CheckResponse) {
+func Check(t TargetSite, targetUrl string, ch chan CheckResponse, done chan struct{}) {
+Loop:
 	for {
-		result := CheckStock(t, targetUrl)
-		cr := &CheckResponse{
-			StockStatus: result,
-			Url:         targetUrl,
-		}
-		ch <- *cr
-
-		if cr.StockStatus == true {
-			break
-		} else {
-			time.Sleep(1 * time.Minute)
+		select {
+		case <-done:
+			break Loop
+		default:
+			result := CheckStock(t, targetUrl)
+			cr := &CheckResponse{
+				StockStatus: result,
+				Url:         targetUrl,
+			}
+			ch <- *cr
+			if cr.StockStatus == false {
+				time.Sleep(1 * time.Minute)
+			}
 		}
 	}
 }
