@@ -1,6 +1,7 @@
 package autobuy
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"strings"
@@ -15,11 +16,12 @@ type CheckResponse struct {
 }
 
 func Check(t TargetSite, targetUrl string, ch chan CheckResponse, done chan struct{}) {
-Loop:
+	tick := time.NewTicker(1 * time.Minute)
+	defer tick.Stop()
 	for {
 		select {
 		case <-done:
-			break Loop
+			return
 		default:
 			result := CheckStock(t, targetUrl)
 			cr := &CheckResponse{
@@ -28,7 +30,7 @@ Loop:
 			}
 			ch <- *cr
 			if cr.StockStatus == false {
-				time.Sleep(1 * time.Minute)
+				<-tick.C
 			}
 		}
 	}
@@ -39,7 +41,8 @@ func CheckStock(t TargetSite, targetUrl string) bool {
 	info := t.getCheckInfo()
 	res, err := http.Get(targetUrl)
 	if err != nil {
-		panic(err)
+		fmt.Printf("failed to get html: %v", err)
+		return false
 	}
 	defer res.Body.Close()
 

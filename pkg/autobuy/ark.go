@@ -206,11 +206,13 @@ func (t *ark) Run(targetUrl string) (err error) {
 		return err
 	}
 
-	//// step3 注文確認画面→コメントアウト外しちゃうと買っちゃうはず、テストしてません。
-	//if err := page.FindByXPath(t.Config.Xpath.NextPage3).Click(); err != nil {
-	//	fmt.Printf("Failed to purchase: %v", err)
-	//	return err
-	//}
+	// step3 注文確認画面
+	if os.Getenv("ENV") == "prod" {
+		if err := page.FindByXPath(t.Config.Xpath.NextPage3).Click(); err != nil {
+			fmt.Printf("Failed to purchase: %v", err)
+			return err
+		}
+	}
 
 	return nil
 }

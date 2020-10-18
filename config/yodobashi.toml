@@ -1,0 +1,32 @@
+#title = "TOML Example"
+[user]
+email = ""
+password = ""
+
+[url]
+target_url = [
+#    "https://www.yodobashi.com/product/100000001005836814/",
+#    "https://www.yodobashi.com/product/100000001005857351/",
+    "https://www.yodobashi.com/product/100000001003880636/",
+    "https://www.yodobashi.com/product/100000001002677304/"
+]
+base_url = "https://www.yodobashi.com/"
+
+[selector]
+stock = "stockInfo"
+
+[xpath]
+
+add_to_cart = "//*[@id=\"js_m_submitRelated\"]"
+purchace_page = "//*[@id=\"contents\"]/div/div[2]/div/div[1]/div/div[3]/ul/li[2]/div"
+next_page1 = "//*[@id=\"js_flexFixedContentsBase\"]/div[1]/div[1]/div[1]/div/div[1]/div[2]/div[1]"
+login = "//*[@id=\"js_i_form\"]/div[3]/div/div/ul/li/div" #購入手続きに進む(ログイン)
+email = "//*[@id=\"memberId\"]"
+password = "//*[@id=\"password\"]"
+next_page2 = "//*[@id=\"js_flexFixedContentsBase\"]/div[1]/div[1]/div[1]/div/div/div[2]/div[1]"
+payment = "//*[@id=\"js_flexFixedContentsBase\"]/div[2]/div[2]/div[1]/div[2]/div[2]" #銀行振り込み
+next_page3 = "//*[@id=\"js_flexFixedContentsBase\"]/div[1]/div[1]/div[2]/ul/li/div"
+order_confirm = "//*[@id=\"js_i_form\"]/div[2]/div/table/tbody/tr/td[2]/div[1]/div[1]/div"
+
+[other]
+in_stock_word = "在庫あり"
