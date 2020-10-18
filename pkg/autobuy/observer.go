@@ -16,6 +16,8 @@ type CheckResponse struct {
 }
 
 func Check(t TargetSite, targetUrl string, ch chan CheckResponse, done chan struct{}) {
+	tick := time.NewTicker(1 * time.Minute)
+	defer tick.Stop()
 	for {
 		select {
 		case <-done:
@@ -28,7 +30,7 @@ func Check(t TargetSite, targetUrl string, ch chan CheckResponse, done chan stru
 			}
 			ch <- *cr
 			if cr.StockStatus == false {
-				time.Sleep(1 * time.Minute)
+				<-tick.C
 			}
 		}
 	}
