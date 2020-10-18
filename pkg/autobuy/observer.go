@@ -22,16 +22,13 @@ func Check(t TargetSite, targetUrl string, ch chan CheckResponse, done chan stru
 		select {
 		case <-done:
 			return
-		default:
+		case <-tick.C:
 			result := CheckStock(t, targetUrl)
 			cr := &CheckResponse{
 				StockStatus: result,
 				Url:         targetUrl,
 			}
 			ch <- *cr
-			if cr.StockStatus == false {
-				<-tick.C
-			}
 		}
 	}
 }
